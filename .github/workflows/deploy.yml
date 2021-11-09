@@ -22,21 +22,26 @@ jobs:
       - run: cargo build --release --all-features
 
 
-  deploy:
-    needs: build
+  upload-artifact:
     runs-on: ubuntu-latest
     steps:
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: chiubi-cloud-linux
-          if-no-files-found: error
-          path: |
-            target/release/chiubi-cloud*
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: chiubi-cloud-linux
+        if-no-files-found: error
+        path: |
+          target/release/*
+    
+
+  deploy:
+    needs: upload-artifact
+    runs-on: ubuntu-latest
+    steps:
       - name: Create Release
         uses: ncipollo/release-action@v1.8.10
         with:
-          artifacts: "chiubi-cloud-linux"
+          artifacts: "*"
           draft: true
           prerelease: true
           tag: v0.1.0
