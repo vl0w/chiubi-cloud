@@ -17,9 +17,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-      - run: cargo build --release --all-features
+      with:
+        toolchain: stable
+    - run: cargo build --release --all-features
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
