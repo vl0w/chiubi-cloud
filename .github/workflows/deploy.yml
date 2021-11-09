@@ -2,10 +2,9 @@ name: Deploy
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
+    tags:
+      - '*'
+  
 env:
   CARGO_TERM_COLOR: always
 
@@ -26,6 +25,10 @@ jobs:
         if-no-files-found: error
         path: |
           target/release/chiubi-cloud*
+    
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
     - name: Create Release
       uses: ncipollo/release-action@v1.8.10
       with:
