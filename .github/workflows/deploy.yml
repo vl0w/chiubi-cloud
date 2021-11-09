@@ -26,3 +26,11 @@ jobs:
         if-no-files-found: error
         path: |
           target/release/chiubi-cloud*
+    - name: Create Release
+      uses: ncipollo/release-action@v1.8.10
+      with:
+        artifacts: chiubi-cloud-linux
+        draft: true
+        prerelease: true
+        token: ${{ secrets.GITHUB_TOKEN }}
+
