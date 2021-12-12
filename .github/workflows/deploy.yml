@@ -2,34 +2,47 @@ name: Deploy
 
 on:
   push:
-    tags:
-      - '*'
+    branches:
+      - main
   
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
+
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-    - name: Build
-      run: cargo build --verbose --release
-    - name: Run tests
-      run: cargo test --verbose --release
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - run: cargo build --release --all-features
+
+
+  upload-artifact:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
         name: chiubi-cloud-linux
         if-no-files-found: error
         path: |
-          target/release/chiubi-cloud*
-    - name: Create Release
-      uses: ncipollo/release-action@v1.8.10
-      with:
-        artifacts: "chiubi-cloud-linux"
-        draft: true
-        prerelease: true
-        token: ${{ secrets.GITHUB_TOKEN }}
+          target/release/*
+    
+
+  deploy:
+    needs: upload-artifact
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Release
+        uses: ncipollo/release-action@v1.8.10
+        with:
+          artifacts: "*"
+          draft: true
+          prerelease: true
+          tag: v0.1.0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
