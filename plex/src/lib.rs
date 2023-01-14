@@ -1,9 +1,9 @@
 pub mod config;
 
 use config::PlexConfig;
+use downloader::get_xml_from_url;
 use quick_xml::de::from_str;
 use sanitize_filename::sanitize;
-use downloader::get_xml_from_url;
 
 #[derive(Debug, serde::Deserialize, PartialEq)]
 #[serde(rename = "Part")]
@@ -51,7 +51,7 @@ impl Track {
                 "Could not detect file extension for parts key {}",
                 parts_key
             )
-                .as_str(),
+            .as_str(),
         );
         parts_key[delimiter..].into()
     }

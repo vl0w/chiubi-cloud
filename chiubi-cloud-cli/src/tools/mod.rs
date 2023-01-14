@@ -4,6 +4,7 @@ pub mod main;
 pub mod playlist_export;
 pub mod playlist_syncer;
 pub mod plex_config;
+pub mod print_config;
 
 type ToolResult = Result<(), ToolError>;
 

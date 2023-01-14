@@ -1,0 +1,18 @@
+[package]
+name = "rest-api"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+
+[dependencies]
+shuttle-service = { version = "0.8.0", features = ["web-axum"] }
+axum = "0.6.2"
+sync_wrapper = "0.1.1"
+plex = { path = "../plex" }
+md5 = "0.7.0"
+serde_json = "1.0.91"
+serde = "1.0.152"
+itertools = "0.10.5"
+uuid = "1.2.2"

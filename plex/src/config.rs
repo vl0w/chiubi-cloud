@@ -1,7 +1,15 @@
-#[derive(serde::Deserialize, serde::Serialize, Debug)]
+use std::fmt::{Display, Formatter};
+
+#[derive(serde::Deserialize, serde::Serialize, Debug, Clone)]
 pub struct PlexConfig {
     pub token: String,
     pub url: String,
+}
+
+impl Display for PlexConfig {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", format!("{:?}", self))
+    }
 }
 
 impl PlexConfig {

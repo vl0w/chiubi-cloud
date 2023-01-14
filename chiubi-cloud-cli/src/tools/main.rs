@@ -2,10 +2,15 @@ use crate::VERSION;
 
 use super::*;
 
-use super::{exit, playlist_syncer, plex_config, ToolDescription};
+use super::{exit, playlist_syncer, plex_config, print_config, ToolDescription};
 
-const MAIN_MENU_TOOLS: [ToolDescription; 4] =
-    [plex_config::TOOL, playlist_syncer::TOOL, playlist_export::TOOL, exit::TOOL];
+const MAIN_MENU_TOOLS: [ToolDescription; 5] = [
+    plex_config::TOOL,
+    playlist_syncer::TOOL,
+    playlist_export::TOOL,
+    print_config::TOOL,
+    exit::TOOL,
+];
 
 fn print_header() {
     println!(
