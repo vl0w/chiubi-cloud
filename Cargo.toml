@@ -4,5 +4,5 @@ members = [
     "chiubi-cloud-cli",
     "plex",
     "downloader",
-    "rest-api"
+    "chiubi-cloud-web"
 ]
