@@ -1,18 +1,16 @@
-use crate::ui::start_spinner;
-use crate::{tools::plex_config::read_config};
+use crate::tools::common;
 use dirs::{audio_dir, download_dir, home_dir};
 use sanitize_filename::sanitize;
 use std::fs::{self, create_dir_all};
 use std::path::{Path, PathBuf};
 
-use super::plex_config::is_config_existing;
 use super::{ToolDescription, ToolError};
 
 pub const TOOL: ToolDescription = ToolDescription {
     name: "sync-playlist",
     description: "Synchronize a Plex music playlist to a folder",
     execute_interactive: sync_playlist_interactive,
-    is_active: is_config_existing,
+    is_active: super::is_config_existing,
 };
 
 #[derive(Debug)]
@@ -31,12 +29,7 @@ pub struct TrackDownload {
 pub fn prepare_playlist_sync(options: SyncOptions) -> Vec<TrackDownload> {
     let config = options.config;
 
-    let spinner = start_spinner("Loading playlist information");
-    let tracks = options.playlist_ref.into_detailed_playlist(config).tracks;
-    spinner.finish_with_message(format!(
-        "Playlist information loaded, got {} tracks to synchronize",
-        tracks.len()
-    ));
+    let tracks = common::load_playlist_details(config, options.playlist_ref).tracks;
 
     let existing_files = match fs::read_dir(options.path) {
         Ok(dir) => dir
@@ -97,20 +90,11 @@ fn default_playlist_sync_folder() -> Option<PathBuf> {
         .or_else(|| home_dir())
 }
 
-pub fn sync_playlist_interactive() -> Result<(), ToolError> {
-    let config = read_config().ok_or(ToolError::NoPlexConfig)?;
+fn sync_playlist_interactive() -> Result<(), ToolError> {
+    let config = super::read_config().ok_or(ToolError::NoPlexConfig)?;
 
-    let spinner = start_spinner("Loading playlists");
-    let playlists = plex::playlists::fetch_all(&config);
-    spinner.finish_and_clear();
-
-    // Select playlist
-    let question = requestty::Question::raw_select("Select a playlist")
-        .choices(playlists.iter().map(|p| p.title.as_str()))
-        .build();
-    let answer = requestty::prompt_one(question).unwrap();
-    let index = answer.as_list_item().unwrap().index;
-    let selected_playlist = &playlists[index];
+    let playlists = common::fetch_playlists(&config);
+    let selected_playlist = common::select_playlist(&playlists);
 
     // Destination folder
     let folder = sanitize(selected_playlist.title.clone());

@@ -1,6 +1,4 @@
-use dirs::config_dir;
 use std::fs::{self, create_dir_all};
-use std::path::PathBuf;
 use super::{ToolDescription, ToolResult, ToolError};
 
 #[derive(Debug)]
@@ -16,47 +14,18 @@ pub const TOOL: ToolDescription = ToolDescription {
     is_active: || true,
 };
 
-fn get_config_path() -> PathBuf {
-    let path = config_dir().unwrap().join("chiubi.cloud").join("conf.toml");
-    path
-}
-
-pub fn is_config_existing() -> bool {
-    get_config_path().as_path().is_file()
-}
-
-/// Reads the plex configuration from it's standard location
-pub fn read_config() -> Option<plex::config::PlexConfig> {
-    let config_content =
-        fs::read_to_string(get_config_path());
-
-    if let Err(_) = config_content {
-        return None;
-    }
-
-    let config_contents = config_content.unwrap();
-
-    let config: Result<plex::config::PlexConfig, toml::de::Error> = toml::from_str(&config_contents);
-
-    match config {
-        Ok(result) => Some(result),
-        Err(_) => None,
-    }
-}
-
 fn persist_config(config: &plex::config::PlexConfig) -> Result<(), Error> {
     let config_contents =
         toml::to_string(config).map_err(|e| Error::SerializationError(e))?;
-    let config_path = get_config_path();
+    let config_path = super::get_config_path();
     let config_dir = config_path.parent().unwrap();
     create_dir_all(config_dir).map_err(|e| Error::IoError(e))?;
     fs::write(&config_path, config_contents).map_err(|e| Error::IoError(e))?;
     Ok(())
 }
 
-pub fn plex_config_interactive() -> ToolResult {
-    let old_config = read_config();
-    // let old_config = old_config.unwrap_or_default();
+fn plex_config_interactive() -> ToolResult {
+    let old_config = super::read_config();
 
     let mut input_token_builder = requestty::Question::input("Access Token");
     if let Some(default_token) = old_config.as_ref().and_then(|c| Some(c.token.clone())) {
@@ -95,7 +64,7 @@ pub fn plex_config_interactive() -> ToolResult {
 
     return match persist_result {
         Ok(_) => {
-            println!("Config saved: {:?}", get_config_path());
+            println!("Config saved: {:?}", super::get_config_path());
             Ok(())
         }
         Err(e) => {

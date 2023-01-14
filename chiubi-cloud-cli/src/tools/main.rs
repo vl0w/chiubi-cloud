@@ -4,8 +4,8 @@ use super::*;
 
 use super::{exit, playlist_syncer, plex_config, ToolDescription};
 
-const MAIN_MENU_TOOLS: [ToolDescription; 3] =
-    [plex_config::TOOL, playlist_syncer::TOOL, exit::TOOL];
+const MAIN_MENU_TOOLS: [ToolDescription; 4] =
+    [plex_config::TOOL, playlist_syncer::TOOL, playlist_export::TOOL, exit::TOOL];
 
 fn print_header() {
     println!(
@@ -33,7 +33,7 @@ pub fn main_menu_interactive() {
 
         print_header();
 
-        let has_config = plex_config::is_config_existing();
+        let has_config = is_config_existing();
         if has_config {
             println!("Plex configuration: ✔");
         } else {
