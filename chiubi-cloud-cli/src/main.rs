@@ -1,5 +1,3 @@
-mod plex;
-mod download;
 mod ui;
 mod tools;
 

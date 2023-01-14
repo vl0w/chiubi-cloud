@@ -5,7 +5,7 @@ use reqwest::blocking::Client;
 use transfer_progress::Transfer;
 
 #[derive(Debug)]
-pub enum DownloadError {
+pub enum Error {
     GetRequestFailed(reqwest::Error),
     ContentLengthNotAvailable,
     IoError(std::io::Error),
@@ -20,15 +20,15 @@ pub fn download_with_progress(
     path: PathBuf,
     url: &str,
     download_name: Option<&str>,
-) -> Result<(), DownloadError> {
+) -> Result<(), Error> {
     let client = Client::new();
     let res = client
         .get(url)
         .send()
-        .map_err(|e| DownloadError::GetRequestFailed(e))?;
+        .map_err(|e| Error::GetRequestFailed(e))?;
     let total_size = res
         .content_length()
-        .ok_or(DownloadError::ContentLengthNotAvailable)?;
+        .ok_or(Error::ContentLengthNotAvailable)?;
 
     // Indicatif setup
     let pb = ProgressBar::new(total_size);
@@ -41,14 +41,14 @@ pub fn download_with_progress(
     }
 
     // Download
-    let file = File::create(path).map_err(|e| DownloadError::IoError(e))?;
+    let file = File::create(path).map_err(|e| Error::IoError(e))?;
     let transfer = Transfer::new(res, file);
 
     while !transfer.is_complete() {
         pb.set_position(transfer.transferred());
     }
 
-    let (_reader, _writer) = transfer.finish().map_err(|e| DownloadError::IoError(e))?;
+    let (_reader, _writer) = transfer.finish().map_err(|e| Error::IoError(e))?;
 
     let finish_message = match download_name {
         Some(name) => format!("Downloaded {}", name),
